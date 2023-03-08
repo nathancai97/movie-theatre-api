@@ -36,29 +36,40 @@ router.get("/genres/:genre", async (req, res) => {
   }
 });
 
-router.put("/:id/watched", async (req, res) => {
-  try {
-    const show = await Show.findByPk(req.params.id);
-    await show.update({ rating: `Watched, rating: ${req.body.rating}` });
-    res.json(show);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Cannot update a show's rating");
+router.put(
+  "/:id/watched",
+  [check("rating").not().isEmpty().trim()],
+  async (req, res) => {
+    try {
+      const show = await Show.findByPk(req.params.id);
+      await show.update({ rating: `Watched, rating: ${req.body.rating}` });
+      res.json(show);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Cannot update a show's rating");
+    }
   }
-});
+);
 
-router.put("/:id/updates", async (req, res) => {
-  try {
-    const show = await Show.findByPk(req.params.id);
-    show.status === "on-going"
-      ? show.update({ status: "cancelled" })
-      : show.update({ status: "on-going" });
-    res.json(show);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Cannot update a show's status");
+router.put(
+  "/:id/updates",
+  [
+    check("status").not().isEmpty().trim(),
+    check("status").isLength({ min: 5, max: 25 }),
+  ],
+  async (req, res) => {
+    try {
+      const show = await Show.findByPk(req.params.id);
+      show.status === "on-going"
+        ? show.update({ status: "cancelled" })
+        : show.update({ status: "on-going" });
+      res.json(show);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Cannot update a show's status");
+    }
   }
-});
+);
 
 router.delete("/:id", async (req, res) => {
   try {
