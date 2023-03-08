@@ -10,14 +10,27 @@ router.get("/", async (req, res) => {
 });
 
 router.get("/:id", async (req, res) => {
+  try {
     const user = await User.findByPk(req.params.id);
     res.json(user);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(`Cannot get User`);
+  }
 });
 
-// router.get("/:id/shows", async (req, res) => {
-//     const user = await User.findByPk(req.params.id);
-//     const shows = await Show.findAll();
-
-// })
+router.get("/:id/shows", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const user = await User.findByPk(id, {
+        include: [{ model: Show }]
+    });
+    const shows = await user.getShows();
+    res.send(shows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(`Cannot get User's shows`);
+  }
+});
 
 module.exports = router;
