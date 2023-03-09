@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const { User } = require("../models/User");
+const { User } = require("../models/index");
 const { check, validationResult } = require("express-validator");
-const { Show } = require("../models/Show");
+const { Show } = require("../models/index");
 
 router.get("/", async (req, res) => {
   const users = await User.findAll();
@@ -34,9 +34,31 @@ router.get("/:id/shows", async (req, res) => {
   }
 });
 
-router.put("/:id/shows/:show", async (req, res) => {
-  // try {
-  // }
+router.put("/:userId/shows/:showId", async (req, res) => {
+  const { userId, showId } = req.params;
+  try {
+    const user = await User.findByPk(userId);
+    const show = await Show.findByPk(showId);
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ message: `User with ID ${userId} not found` });
+    }
+    if (!show) {
+      return res
+        .status(404)
+        .json({ message: `Show with ID ${showId} not found` });
+    }
+
+    await user.addShow(show);
+
+    const updatedUser = await User.findByPk(userId, { include: Show });
+    res.json(updatedUser);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
 });
 
 module.exports = router;
