@@ -37,24 +37,17 @@ router.get("/:id/shows", async (req, res) => {
 router.put("/:userId/shows/:showId", async (req, res) => {
   const { userId, showId } = req.params;
   try {
-    const user = await User.findByPk(userId);
-    const show = await Show.findByPk(showId);
+    const user = await User.findAll({ where: { id: req.params.userId } });
+    const show = await Show.findAll({ where: { id: req.params.showId } });
 
     if (!user) {
-      return res
-        .status(404)
-        .json({ message: `Cannot find User ${userId}` });
+      return res.status(404).json({ message: `Cannot find User ${userId}` });
     }
     if (!show) {
-      return res
-        .status(404)
-        .json({ message: `Cannot find Show ${showId}` });
+      return res.status(404).json({ message: `Cannot find Show ${showId}` });
     }
-
-    await user.addShow(show);
-
-    const updatedUser = await User.findByPk(userId, { include: Show });
-    res.json(updatedUser);
+    await user[0].addShow(show);
+    res.json(await user[0].getShows());
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Cannot update User's show" });
