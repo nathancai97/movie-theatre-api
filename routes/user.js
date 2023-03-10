@@ -43,12 +43,12 @@ router.put("/:userId/shows/:showId", async (req, res) => {
     if (!user) {
       return res
         .status(404)
-        .json({ message: `User with ID ${userId} not found` });
+        .json({ message: `Cannot find User ${userId}` });
     }
     if (!show) {
       return res
         .status(404)
-        .json({ message: `Show with ID ${showId} not found` });
+        .json({ message: `Cannot find Show ${showId}` });
     }
 
     await user.addShow(show);
@@ -57,7 +57,7 @@ router.put("/:userId/shows/:showId", async (req, res) => {
     res.json(updatedUser);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Cannot update User's show" });
   }
 });
 
